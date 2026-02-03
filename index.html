@@ -317,9 +317,13 @@ function openGift(box){
 
 /* final screen */
 function showFinal(){
-  const gift=Math.random()<.99
-    ?"💋 Lifetime kisses, 🤗 hugs, 💪 support & 🍫 chocolates"
-    :"💍 Jhumka or 🌹 Rose";
+  const gifts = [
+  "💋 Lifetime kisses, 🤗 hugs, 💪 support & 🍫 chocolates",
+  "💍 Jhumka",
+  "🌹 Rose"
+];
+
+const gift = gifts[Math.floor(Math.random() * gifts.length)];
 
   const compliment=compliments[Math.floor(Math.random()*compliments.length)];
   const date=new Date().toDateString();
