@@ -17,7 +17,7 @@ body{
   overflow:hidden;
 }
 
-/* background hearts & flowers */
+/* floating hearts & flowers */
 .bg{
   position:fixed;
   bottom:-20px;
@@ -44,7 +44,6 @@ body{
 img.main{
   width:190px;
   border-radius:20px;
-  transition:.4s;
 }
 
 .hug{
@@ -58,10 +57,9 @@ h1{color:#ff4d88}
 p{color:#555}
 
 .personal{
-  margin-top:12px;
-  font-size:15px;
   color:#ff4d88;
   font-weight:600;
+  margin-top:10px;
 }
 
 .score{
@@ -87,9 +85,9 @@ button{
 #yes{
   background:#ff4d88;
   color:#fff;
-  position:relative;
   z-index:3;
 }
+
 #yes.pulse{
   animation:pulse 1.1s infinite;
   box-shadow:0 0 18px rgba(255,77,136,.8);
@@ -105,7 +103,7 @@ button{
   top:0;
 }
 
-/* firecracker */
+/* fireworks */
 .fire{
   position:fixed;
   width:6px;
@@ -134,6 +132,7 @@ button{
   justify-content:space-around;
   margin-top:20px;
 }
+
 .box{
   width:90px;
   height:90px;
@@ -150,11 +149,26 @@ button{
   25%{transform:rotate(-3deg)}
   75%{transform:rotate(3deg)}
 }
+.box.open{
+  animation:none;
+  transform:scale(1.2);
+}
 
-/* snap icon */
+/* sparkles */
+.sparkle{
+  position:fixed;
+  font-size:16px;
+  animation:spark 1.2s ease-out forwards;
+}
+@keyframes spark{
+  from{transform:scale(0);opacity:1}
+  to{transform:translateY(-80px) scale(1.5);opacity:0}
+}
+
 .snap{
   font-size:26px;
   margin-top:10px;
+  cursor:pointer;
 }
 </style>
 </head>
@@ -183,11 +197,19 @@ const text=document.getElementById("text");
 const score=document.getElementById("score");
 const btns=document.getElementById("btns");
 const personal=document.getElementById("personal");
+const card=document.getElementById("card");
 
 let noCount=0;
 let yesScale=1;
 
-/* background hearts & flowers */
+const compliments=[
+  "You have the prettiest smile 🥹",
+  "You make everything feel lighter 💕",
+  "Lucky me, honestly 🌸",
+  "You’re my favorite feeling 💖"
+];
+
+/* floating hearts & flowers */
 setInterval(()=>{
   const b=document.createElement("div");
   b.className="bg";
@@ -201,7 +223,6 @@ setInterval(()=>{
 no.addEventListener("mouseover",()=>{
   noCount++;
   score.innerText=`No attempts 😏: ${noCount}`;
-
   gif.src="happy-dance.gif";
 
   yesScale+=0.08;
@@ -223,8 +244,8 @@ function celebrate(){
   gif.src="dudu-bubu-love.gif";
   gif.classList.add("hug");
 
-  const fireInt=setInterval(()=>{
-    for(let i=0;i<8;i++){
+  const int=setInterval(()=>{
+    for(let i=0;i<6;i++){
       const f=document.createElement("div");
       f.className="fire";
       f.style.left=Math.random()*100+"vw";
@@ -233,7 +254,7 @@ function celebrate(){
       document.body.appendChild(f);
       setTimeout(()=>f.remove(),2000);
     }
-    for(let i=0;i<12;i++){
+    for(let i=0;i<10;i++){
       const c=document.createElement("div");
       c.className="confetti";
       c.style.left=Math.random()*100+"vw";
@@ -243,42 +264,68 @@ function celebrate(){
     }
   },400);
 
-  setTimeout(()=>clearInterval(fireInt),5000);
+  setTimeout(()=>clearInterval(int),5000);
 }
 
 /* YES */
 yes.onclick=()=>{
-  text.innerHTML="You chose love 💖";
-  personal.innerHTML=`
-    Jaldi theek ho ja 🤍<br>
-    Phir milke tumhe pyaar bhi karna hai,<br>
-    aur tumhare saath vibe bhi toh karni hai 💫
-  `;
+  text.innerHTML="I’m right here 🤍";
+  personal.innerHTML=`Jaldi theek ho ja 🤍<br>
+  Phir milke tumhe pyaar bhi karna hai,<br>
+  aur tumhare saath vibe bhi toh karni hai 💫`;
+
   celebrate();
 
   setTimeout(()=>{
-    document.getElementById("card").innerHTML=`
+    card.innerHTML=`<h1>Wait… one last thing 🥺</h1>`;
+  },3000);
+
+  setTimeout(()=>{
+    card.innerHTML=`
       <img src="dudu-bubu-love.gif" class="main hug">
       <h1>Choose your Valentine gift 🎁</h1>
-
-      <p class="personal">
-        Jaldi theek ho ja 🤍<br>
-        Phir milke tumhe pyaar bhi karna hai,<br>
-        aur tumhare saath vibe bhi toh karni hai 💫
-      </p>
-
       <div class="gifts">
-        <div class="box" onclick="gift()">🎁</div>
-        <div class="box" onclick="gift()">🎁</div>
-        <div class="box" onclick="gift()">🎁</div>
+        <div class="box" onclick="openGift(this)">🎁</div>
+        <div class="box" onclick="openGift(this)">🎁</div>
+        <div class="box" onclick="openGift(this)">🎁</div>
       </div>
     `;
   },5000);
 };
 
-function gift(){
-  const best=Math.random()<.99;
-  document.getElementById("card").innerHTML=`
+/* gift opening */
+function openGift(box){
+  document.querySelectorAll(".box").forEach(b=>b.onclick=null);
+  box.classList.add("open");
+
+  if(navigator.vibrate){
+    navigator.vibrate([40,30,40]);
+  }
+
+  for(let i=0;i<12;i++){
+    const s=document.createElement("div");
+    s.className="sparkle";
+    s.innerHTML="✨";
+    s.style.left=(box.getBoundingClientRect().left+40)+"px";
+    s.style.top=(box.getBoundingClientRect().top+40)+"px";
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(),1200);
+  }
+
+  setTimeout(showFinal,900);
+}
+
+/* final screen */
+function showFinal(){
+  const gift=Math.random()<.99
+    ?"💋 Lifetime kisses, 🤗 hugs, 💪 support & 🍫 chocolates"
+    :"💍 Jhumka or 🌹 Rose";
+
+  const compliment=compliments[Math.floor(Math.random()*compliments.length)];
+  const date=new Date().toDateString();
+
+  card.innerHTML=`
+    <img src="dudu-bubu-love.gif" class="main hug">
     <h1>Happy Valentine’s Day 💖</h1>
 
     <p class="personal">
@@ -287,24 +334,20 @@ function gift(){
       aur tumhare saath vibe bhi toh karni hai 💫
     </p>
 
-    <p>
-      ${best
-        ? "💋 Lifetime kisses, 🤗 hugs, 💪 support & 🍫 chocolates"
-        : "💍 Jhumka or 🌹 Rose"
-      }
-      <br><br>
-      No attempts: ${noCount} 😏<br>
-      Today. Tomorrow. Always. 💍
-    </p>
+    <p>${gift}</p>
+    <p>${compliment}</p>
+    <p>No attempts 😏: ${noCount}</p>
+    <p>📅 ${date}</p>
 
     <p class="personal">
       — apka apna, <b>Pranshu</b> 🤍<br>
-      Agar aapko yeh pasand aaya ho,<br>
-      toh Snap par <b>Yes</b> reply kar dena 💛
+      Ab official jawab Snap par <b>Yes</b> mein chahiye 😄💛
     </p>
 
-    <div class="snap">👻💛</div>
+    <div class="snap" onclick="alert('Okay… I’m waiting 😄')">👻💛</div>
   `;
+
+  document.body.style.pointerEvents="none";
 }
 </script>
 
